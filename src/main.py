@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planets
+from models import db, User, People, Planets, Favorites
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import JWTManager
 # from models import Person

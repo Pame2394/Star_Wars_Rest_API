@@ -42,3 +42,12 @@ class Planets(db.Model):
     rotation_period = db.Column(db.Integer, nullable=False)
     diameter = db.Column(db.Integer, nullable=False)
     image_url = db.Column(db.String(250), nullable=False)
+
+class Favorites(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    People_id = db.Column(db.Integer, db.ForeignKey('people.id'))
+    planets_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    fav_planets = db.relationship("Planets")
+    fav_characters = db.relationship("People")
+    fav_user = db.relationship("User")
