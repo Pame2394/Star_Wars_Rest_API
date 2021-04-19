@@ -30,6 +30,21 @@ class People(db.Model):
    eye_color = db.Column(db.String(250), nullable=False)
    #like = relationship(Favorites)
 
+   def __repr__(self):
+        return '<People %r>' % self.name
+
+   def serialize(self):
+       return {
+            "id": self.id,
+            "name": self.name,
+            "birth_year": self.birth_year,
+            "gender": self.gender,
+            "height": self.height,
+            "skin_color": self.skin_color,
+            "hair_color": self.hair_color,
+            "eye_color": self.eye_color,
+        }
+
 class Planets(db.Model):
     # Here we define columns for the table person
     # Notice that each column is also a normal Python instance attribute.
