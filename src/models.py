@@ -46,17 +46,29 @@ class People(db.Model):
         }
 
 class Planets(db.Model):
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    population = db.Column(db.Integer, nullable=False)
-    terrain = db.Column(db.Integer, nullable=False)
     climate = db.Column(db.String(250), nullable=False)
+    population = db.Column(db.Integer, nullable=False)
     orbital_period = db.Column(db.Integer, nullable=False)
     rotation_period = db.Column(db.Integer, nullable=False)
     diameter = db.Column(db.Integer, nullable=False)
-    image_url = db.Column(db.String(250), nullable=False)
+    terrain = db.Column(db.String(250), nullable=False)
+
+    def __repr__(self):
+        return '<Planets %r>' % self.name
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "climate": self.climate,
+            "population": self.population,
+            "orbital_period": self.orbital_period,
+            "rotation_period": self.rotation_period,
+            "diameter": self.diameter,
+            "terrain": self.terrain,
+        }
 
 class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
