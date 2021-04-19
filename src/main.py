@@ -39,10 +39,12 @@ def handle_invalid_usage(error):
 @app.route("/")
 def sitemap():
     return generate_sitemap(app)
+
 @app.route("/user", methods=["GET"])
 def handle_hello():
     response_body = {"msg": "Hello, this is your GET /user response "}
     return jsonify(response_body), 200
+    
 # register endpoint
 @app.route("/register", methods=["POST"])
 def register_user():
@@ -67,6 +69,7 @@ def register_user():
         db.session.add(new_user)
         db.session.commit()
         return jsonify({"msg": "User created successfully"}), 200
+
 @app.route("/login", methods=["POST"])
 def login():
     email = request.json.get("email", None)
@@ -96,6 +99,7 @@ def protected():
     user = User.query.get(current_id)
     print(user)
     return jsonify({"id": user.id, "email": user.email}), 200
+
 # add peoples endpoint
 @app.route("/people", methods=["POST"])
 def add_people():
@@ -138,14 +142,69 @@ def add_people():
         db.session.add(new_people)
         db.session.commit()
         return jsonify({"msg": "people created successfully"}), 200
-# FAVORITOS (POST, DELETE) = TODOLIST PROJECT
-# people (GET)
-# PLANETS (GET)
-# PUEDO CREAR UN ENDPOINT PARA CARGAR INFO A MI BD, PODRIA SER CON CRUD
-# Y QUE LO MANEJE POR APARTE (CRUD PARA PEOPLE. CRUD PARA peopleS)
-# HACER PRIMERO ESTO: CARGAR LOS DATOS A TRAVÉS DE POSTMAN. Y LE HAGO EL POST A MI TABLA ESPECIFICA
-# DE ACUERDO AL TIEMPO CREAMOS OTRO COMPONENTE PARA EL CRUD
-# this only runs if `$ python src/main.py` is executed
+
+@app.route("/people", methods=["GET"])
+def get_characters():
+    allpeople = People.query.all()
+    allpeople = list(map(lambda x: x.serialize(),allpeople))
+    return jsonify(allpeople), 200
+
+app.route("/planets", methods=["POST"])
+def add_planets():
+    name = request.json.get("name", None)
+    climate = request.json.get("climate", None)
+    population = request.json.get("population", None)
+    orbital_period = request.json.get("orbital_period", None)
+    rotation_period = request.json.get("rotation_period", None)
+    diameter = request.json.get("diameter", None)
+    terrain = request.json.get("terrain", None)
+    # validation of possible empty inputs
+    if name is None:
+        return jsonify({"msg": "No name was provided"}), 400
+    if climate is None:
+        return jsonify({"msg": "No climate was provided"}), 400
+    if population is None:
+        return jsonify({"msg": "No population was provided"}), 400
+    if orbital_period is None:
+        return jsonify({"msg": "No orbital_period was provided"}), 400
+    if rotation_period is None:
+        return jsonify({"msg": "No rotation_period was provided"}), 400
+    if diameter is None:
+        return jsonify({"msg": "No diameter was provided"}), 400
+    if terrain is None:
+        return jsonify({"msg": "No terrain was provided"}), 400
+    # busca character en BBDD
+    planet = Planets.query.filter_by(name=name).first()
+    if planet:
+        # the planet was found on the database
+        return jsonify({"msg": "Planet already exists"}), 401
+    else:
+        new_planet = Planets()
+        new_planet.name = name
+        new_planet.climate = climate
+        new_planet.population = population
+        new_planet.orbital_period = orbital_period
+        new_planet.rotation_period = rotation_period
+        new_planet.diameter = diameter
+        new_planet.terrain = terrain
+        db.session.add(new_planet)
+        db.session.commit()
+        return jsonify({"msg": "Planet created successfully"}), 200    
+
+@app.route("/planets", methods=["GET"])
+def get_planets():
+    allplanets = Planets.query.all()
+    allplanets = list(map(lambda x: x.serialize(),allplanets))
+    return jsonify(allplanets), 200
+
+@app.route("/favorites", methods=["GET","POST", "DELETE"])
+def add_delete_favorites():
+
+    allfavorites = Favorites.query.all()
+    allfavorites = list(map(lambda x: x.serialize(),allfavorites))
+
+    return jsonify(allfavorites), 200
+
 if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 3000))
     app.run(host="0.0.0.0", port=PORT, debug=False)
