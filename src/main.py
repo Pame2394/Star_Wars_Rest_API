@@ -126,12 +126,12 @@ def add_people():
     if eye_color is None:
         return jsonify({"msg": "No eye color was provided"}), 400
     # busca people en BBDD
-    people = people.query.filter_by(name=name).first()
+    people = People.query.filter_by(name=name).first()
     if people:
         # the  was found on the database
         return jsonify({"msg": "people already exists"}), 401
     else:
-        new_people = people()
+        new_people = People()
         new_people.name = name
         new_people.birth_year = birth_year
         new_people.gender = gender
@@ -144,7 +144,7 @@ def add_people():
         return jsonify({"msg": "people created successfully"}), 200
 
 @app.route("/people", methods=["GET"])
-def get_characters():
+def get_people():
     allpeople = People.query.all()
     allpeople = list(map(lambda x: x.serialize(),allpeople))
     return jsonify(allpeople), 200
@@ -174,20 +174,20 @@ def add_planets():
     if terrain is None:
         return jsonify({"msg": "No terrain was provided"}), 400
     # busca character en BBDD
-    planet = Planets.query.filter_by(name=name).first()
-    if planet:
+    planets = Planets.query.filter_by(name=name).first()
+    if planets:
         # the planet was found on the database
         return jsonify({"msg": "Planet already exists"}), 401
     else:
-        new_planet = Planets()
-        new_planet.name = name
-        new_planet.climate = climate
-        new_planet.population = population
-        new_planet.orbital_period = orbital_period
-        new_planet.rotation_period = rotation_period
-        new_planet.diameter = diameter
-        new_planet.terrain = terrain
-        db.session.add(new_planet)
+        new_planets = Planets()
+        new_planets.name = name
+        new_planets.climate = climate
+        new_planets.population = population
+        new_planets.orbital_period = orbital_period
+        new_planets.rotation_period = rotation_period
+        new_planets.diameter = diameter
+        new_planets.terrain = terrain
+        db.session.add(new_planets)
         db.session.commit()
         return jsonify({"msg": "Planet created successfully"}), 200    
 
@@ -197,13 +197,32 @@ def get_planets():
     allplanets = list(map(lambda x: x.serialize(),allplanets))
     return jsonify(allplanets), 200
 
-@app.route("/favorites", methods=["GET","POST", "DELETE"])
-def add_delete_favorites():
+@app.route("/favorites", methods=["GET"])
+def get_favorites():
+        allfavorites = Favorites.query.all()
+        allfavorites = list(map(lambda x: x.serialize(),allfavorites))
+        return jsonify(allfavorites), 200
 
-    allfavorites = Favorites.query.all()
-    allfavorites = list(map(lambda x: x.serialize(),allfavorites))
+@app.route("/favorites", methods=["POST"])
+def post_favorites():
+    nfavorite = Favorites()
+    nfavorite.planets_id = request.json['planets_id']
+    nfavorite.people_id = request.json['people_id']
+    nfavorite.user_id  = request.json['user_id']
+    db.session.add(nfavorite)
+    db.session.commit()
+    return jsonify({"msg": "Favorite successfully created"}), 200
 
-    return jsonify(allfavorites), 200
+@app.route("/favorites/<int:id>", methods=["DELETE"])
+def delete_favorites(id):
+    if not id:
+        return jsonify({'msg': 'ID is required'})
+    dfavorite = Favorites.query.filter_by(id=id).first()
+    if not dfavorite:
+        return jsonify({'msg': 'Not favorite found'})
+    db.session.delete(dfavorite)
+    db.session.commit()
+    return jsonify({"msg": "Favorite successfully deleted"}), 200  
 
 if __name__ == "__main__":
     PORT = int(os.environ.get("PORT", 3000))
